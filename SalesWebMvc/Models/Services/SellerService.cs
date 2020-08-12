@@ -5,7 +5,7 @@ using System.Linq;
 using System.Security.Cryptography.X509Certificates;
 using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore;
-
+using SalesWebMvc.Models.Services.Exception;
 namespace SalesWebMvc.Models.Services
 {
     public class SellerService
@@ -37,7 +37,21 @@ namespace SalesWebMvc.Models.Services
             _context.Seller.Remove(obj);
             _context.SaveChanges();
         }
-
+        public void Update(Seller obj)
+        {
+            if (!_context.Seller.Any(x => x.Id == obj.Id))
+            {
+                throw new NotFoundException("id not found");
+            }
+            try
+            {
+                _context.Update(obj);
+                _context.SaveChanges();
+            }
+            catch(DbUpdateConcurrencyException e)
+            {
+                throw new DbConcurrencyException(e.Message);
+            }
+        }
     }
 }
-
